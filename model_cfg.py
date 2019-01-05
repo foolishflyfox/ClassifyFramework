@@ -13,7 +13,10 @@ data_dir = "/home/linux_fhb/data/cat_vs_dog"
 
 # model parameters
 model_cfg = {
-    'num_classes': 2
+    'model_name': 'resnet50',
+    'classify_layers': [2],
+    'pretrained': True,
+    'cuda': True,
 }
 
 # train parameters
