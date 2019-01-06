@@ -18,15 +18,20 @@ def initialize_model(model_name, classify_layers, pretrained=True):
         'classify_layers': classify_layers,
         'pretrained': pretrained,
     }
+    model, size = None, None
     if model_name.startswith('resnet'):
-        return initialize_resnet(**kwargs)
+        model, size = initialize_resnet(**kwargs)
     elif model_name.startswith('alexnet'):
-        return initialize_alex(**kwargs)
+        model, size = initialize_alex(**kwargs)
     elif model_name.startswith('vgg'):
-        return initialize_vgg(**kwargs)
+        model, size = initialize_vgg(**kwargs)
     elif model_name.startswith('squeezenet'):
-        return initialize_squeezenet(**kwargs)
+        model, size = initialize_squeezenet(**kwargs)
     elif model_name.startswith('densenet'):
-        return initialize_densenet(**kwargs)
+        model, size = initialize_densenet(**kwargs)
     elif model_name.startswith('inception'):
-        return initialize_inception(**kwargs)
+        model, size = initialize_inception(**kwargs)
+    if hasattr(size, '__len__'):
+        size = size[0]
+    model.name = model_name
+    return model, size
