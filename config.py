@@ -30,7 +30,8 @@ train_cfg = {
     'train_rate': 1.0,
     'shuffle': False,
     'lr': 1e-3,
-    'train_data_dir': 'train_data',
+    'train_result_dir': 'train_result',
+    'train_subdir': None,
     'save_best': True,
 }
 

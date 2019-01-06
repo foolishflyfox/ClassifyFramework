@@ -6,6 +6,8 @@ import torch.backends.cudnn as cudnn
 import torchclassify
 import torch
 import os
+import json
+import copy
 import os.path as osp
 
 imagenet_mean = [0.485, 0.456, 0.406]
@@ -88,14 +90,32 @@ optimizer = torch.optim.RMSprop(params_to_update, lr=train_cfg['lr'])
 model, hist = utils.train_model(model, train_dataloader, val_dataloader, criterion, optimizer,
                                 num_epochs=train_cfg['num_epochs'], device=device)
 
-if not osp.isdir(train_cfg['train_data_dir']):
-    os.makedirs(train_cfg['train_data_dir'])
+if not osp.isdir(train_cfg['train_result_dir']):
+    os.makedirs(train_cfg['train_result_dir'])
 
-data_dir = osp.join(train_cfg['train_data_dir'], utils.get_timestamp())
-os.makedirs(data_dir)
+if train_cfg['train_subdir'] is None:
+    train_cfg['train_subdir'] = utils.get_timestamp()
+train_result_dir = osp.join(train_cfg['train_result_dir'], train_cfg['train_subdir'])
+os.makedirs(train_result_dir)
+
+all_train_cfgs = {
+    'model_cfg': copy.deepcopy(model_cfg),
+    'train_cfg': copy.deepcopy(train_cfg),
+    'val_cfg': copy.deepcopy(val_cfg),
+}
+
+trainmode2str = {
+    TrainMode.FEATURE_EXTRACT: 'feature_extract',
+    TrainMode.FINE_TUNE: 'fine_tune',
+    TrainMode.TWO_STEP_TRAIN: 'two_step_train',
+}
+all_train_cfgs['train_cfg']['train_mode'] = trainmode2str[train_cfg['train_mode']]
+
+with open(osp.join(train_result_dir, 'all_cfg.json'), 'w') as f:
+    json.dump(all_train_cfgs, f)
 
 if train_cfg['save_best']:
-    model_save_path = osp.join(data_dir, 'best_model.pt')
+    model_save_path = osp.join(train_result_dir, 'best_model.pt')
     torch.save(model.state_dict(), model_save_path)
     print(f"Save best model to path: {osp.abspath(osp.expanduser(model_save_path))}")
 
