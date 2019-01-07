@@ -25,13 +25,16 @@ if model_cfg['load_path'] is not None and osp.isfile(model_cfg['load_path']):
         param.requires_grad_(True)
     print(f"Finish loading model!")
 
-model.to(device)
-
 if train_cfg['train_mode']==TrainMode.FEATURE_EXTRACT:
     for param in model.parameters():
         param.requires_grad_(False)
     for param in model.custom_layers.parameters():
         param.requires_grad_(True)
+else:
+    for param in model.parameters():
+        param.requires_grad_(True)
+
+model.to(device)
 
 train_dataset, val_dataset = None, None
 
@@ -81,15 +84,20 @@ if val_dataset:
 criterion = torch.nn.CrossEntropyLoss()
 criterion = criterion.to(device)
 
-if train_cfg['train_mode']==TrainMode.FINE_TUNE:
-    params_to_update = model.parameters()
-else:
-    params_to_update = []
-    for param in model.parameters():
-        if param.requires_grad:
-            params_to_update.append(param)
 
-optimizer = torch.optim.RMSprop(params_to_update, lr=train_cfg['lr'])
+# params_to_update = list(model.parameters())
+params_to_update = []
+for param in model.parameters():
+    if param.requires_grad:
+        params_to_update.append(param)
+
+num_trainable_param = sum(param.numel() for param in params_to_update if param.requires_grad)
+print(f"Trainable parameter number: {num_trainable_param}")
+
+if train_cfg['optimizer']=='SGD':
+    optimizer = torch.optim.SGD(params_to_update, lr=train_cfg['lr'])
+else:
+    optimizer = torch.optim.RMSprop(params_to_update, lr=train_cfg['lr'])
 
 model, hist = utils.train_model(model, train_dataloader, val_dataloader, criterion, optimizer,
                                 num_epochs=train_cfg['num_epochs'], device=device)
