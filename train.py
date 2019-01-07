@@ -68,6 +68,13 @@ print(f"Train dataset\n\tpath:{train_dataset.root}\n\tsize:{len(train_dataset)}"
 if val_dataset:
     print(f"Val dataset\n\tpath:{val_dataset.root}\n\tsize:{len(val_dataset)}")
 
+if train_cfg['class_to_idx'] and train_cfg['class_to_idx'].keys()==train_dataset.class_to_idx.keys():
+    train_dataset.class_to_idx = train_cfg['class_to_idx']
+    if val_dataset:
+        train_dataset.class_to_idx = train_cfg['class_to_idx']
+else:
+    train_cfg['class_to_idx'] = train_dataset.class_to_idx
+
 train_dataloader, val_dataloader = None, None
 train_dataloader = torch.utils.data.DataLoader(train_dataset, train_cfg['batch_size'], True)
 
