@@ -10,6 +10,8 @@ def train_model(model, train_dataloader, val_dataloader, criterion, optimizer,
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+    train_acc_history = []
+    train_loss_history = []
     val_acc_history = []
 
     for epoch in range(num_epochs):
@@ -41,6 +43,8 @@ def train_model(model, train_dataloader, val_dataloader, criterion, optimizer,
             pbar.close()
         train_loss = train_loss / len(train_dataloader.dataset)
         train_acc = train_corrects.double() / len(train_dataloader.dataset)
+        train_loss_history.append(train_loss.item())
+        train_acc_history.append(train_acc.item())
         print(f'\ttrain_acc:{train_acc:.6f},\ttrain loss:{train_loss:.6f}')
         
         if val_dataloader is None: continue
@@ -71,5 +75,12 @@ def train_model(model, train_dataloader, val_dataloader, criterion, optimizer,
     print(f"Best val Acc: {best_acc:.6f}")
 
     model.load_state_dict(best_model_wts)
-    return model, val_acc_history
+
+    train_val_history = {
+        'train_loss_history': train_loss_history,
+        'train_acc_history': train_acc_history,
+        'val_acc_history': val_acc_history,
+    }
+    return model, train_val_history
+
 

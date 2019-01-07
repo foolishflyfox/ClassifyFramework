@@ -109,13 +109,20 @@ trainmode2str = {
     TrainMode.FINE_TUNE: 'fine_tune',
     TrainMode.TWO_STEP_TRAIN: 'two_step_train',
 }
-all_train_cfgs['train_cfg']['train_mode'] = trainmode2str[train_cfg['train_mode']]
+str_trainmode = trainmode2str[train_cfg['train_mode']]
+all_train_cfgs['train_cfg']['train_mode'] = str_trainmode
 
 with open(osp.join(train_result_dir, 'all_cfg.json'), 'w') as f:
     json.dump(all_train_cfgs, f)
+
+with open(osp.join(train_result_dir, 'train_val_history.json'), 'w') as f:
+    json.dump(hist, f)
 
 if train_cfg['save_best']:
     model_save_path = osp.join(train_result_dir, 'best_model.pt')
     torch.save(model.state_dict(), model_save_path)
     print(f"Save best model to path: {osp.abspath(osp.expanduser(model_save_path))}")
 
+utils.plot_history(hist['train_loss_history'], hist['train_acc_history'], 
+                    hist['val_acc_history'], osp.join(train_result_dir, 'history.png'),
+                    suptitle=f"model:{model_cfg['model_name']}, train mode:{str_trainmode}")
