@@ -26,6 +26,7 @@ def plot_history(train_loss, train_acc, val_acc, save_path, suptitle="Training h
             label='val acc')
     plt.xlabel('Epochs')
     plt.ylabel('Acc', fontsize=y_label_fontsize)
+    plt.legend()
     plt.tight_layout(rect=[0, 0.05, 1, 0.95])
     suffix = os.path.splitext(save_path)[1]
     valid_suffix = ['png', 'pdf', 'ps', 'eps', 'svg']
