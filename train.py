@@ -10,9 +10,6 @@ import json
 import copy
 import os.path as osp
 
-imagenet_mean = [0.485, 0.456, 0.406]
-imagenet_std = [0.229, 0.224, 0.225]
-
 device = torch.device('cpu')
 
 if model_cfg['cuda'] and torch.cuda.is_available():
